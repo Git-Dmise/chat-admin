@@ -9,7 +9,8 @@ const service = axios.create({
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000, // request timeout
   headers: {
-    'X-Client-Env': process.env.VUE_APP_X_CLIENT_ENV
+    'X-Client-Env': process.env.VUE_APP_X_CLIENT_ENV,
+    'k': 'b5834e65-4aa7-4a82-aeb4-cb0b5c60aa23'
   }
 })
 

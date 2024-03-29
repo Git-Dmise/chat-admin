@@ -1,5 +1,12 @@
 import request from '@/utils/request'
 
+export function indexList() {
+  return request({
+    url: '/api/v1/promotion_admin/index',
+    method: 'get'
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/vue-element-admin/article/list',

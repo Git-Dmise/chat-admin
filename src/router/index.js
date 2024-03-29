@@ -72,6 +72,11 @@ export const constantRoutes = [
   },
   {
     path: '/',
+    component: () => import('@/views/index/index'),
+    hidden: true
+  },
+  {
+    path: '/dashboard',
     component: Layout,
     redirect: '/dashboard',
     children: [
