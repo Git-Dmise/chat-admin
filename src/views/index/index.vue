@@ -35,12 +35,12 @@
           <span>{{ row.accumulate_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="累计提现金额13" align="center">
+      <el-table-column label="累计提现金额" align="center">
         <template slot-scope="{row}">
           <span>{{ row.used_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button v-if="row.status!='published'" size="mini" type="success" @click="access(row,'published')">
             查看

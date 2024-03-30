@@ -10,70 +10,107 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="序号" align="center">
+      <el-table-column label="序号" align="center" width="50">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="App名称" align="center">
+      <el-table-column label="用户账号" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.app_name }}</span>
+          <span>{{ row.account }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="合作商家数量" align="center">
+      <el-table-column label="账户类型" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.merchant_count }}</span>
+          <span>{{ row.user_type === 1 ? '普通用户' : '合作商户' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="参与用户数量" align="center">
+      <el-table-column label="返佣模式" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.user_count }}</span>
+          <span>{{ row.cashback_type === 1 ? '首次付费返佣' : '多次付费返佣' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="返佣比例" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.cashback_prop }}%</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="注册人数" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.register_count }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="付费人数" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.pay_count }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="累计充值" align="center">
+        <template slot-scope="{row}">
+          <span>￥{{ row.pay_amount }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="续费率" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.renew_prop }}%</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="退款率" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.refund_prop }}%</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="退款金额" align="center">
+        <template slot-scope="{row}">
+          <span>￥{{ row.refund_amount }}</span>
         </template>
       </el-table-column>
       <el-table-column label="累计返佣金额" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.accumulate_amount }}</span>
+          <span>￥{{ row.accumulate_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="累计提现金额13" align="center">
+      <el-table-column label="已提现金额" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.used_amount }}</span>
+          <span>￥{{ row.used_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column label="剩余可提现" align="center">
         <template slot-scope="{row}">
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            查看
+          <span>￥{{ row.usable_amount }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.actions')" align="center" class-name="small-padding fixed-width">
+        <template slot-scope="{row}">
+          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+            {{ $t('table.edit') }}
           </el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.per_page" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="$t('table.type')" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="用户id">
+          <span>{{ temp.user_id }}</span>
+        </el-form-item>
+        <el-form-item label="用户账号">
+          <span>{{ temp.account }}</span>
+        </el-form-item>
+        <el-form-item label="账号类型" prop="user_type">
+          <el-select v-model="temp.user_type" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in userType" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.date')" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item :label="$t('table.title')" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <el-form-item :label="$t('table.status')">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
+        <el-form-item label="返佣模式" prop="cashback_type">
+          <el-select v-model="temp.cashback_type" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in cashbackType" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.importance')">
-          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
-        </el-form-item>
-        <el-form-item :label="$t('table.remark')">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+        <el-form-item label="返佣比例" prop="cashback_prop">
+          <el-input v-model="temp.cashback_prop" />%
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -99,20 +136,23 @@
 </template>
 
 <script>
-import { indexList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { incomeList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
+const userType = [
+  { key: 1, display_name: '普通用户' },
+  { key: 2, display_name: '合作商户' }
+]
+
+const cashbackType = [
+  { key: 1, display_name: '首次付费返佣' },
+  { key: 2, display_name: '多次付费返佣' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
+const calendarTypeKeyValue = userType.reduce((acc, cur) => {
   acc[cur.key] = cur.display_name
   return acc
 }, {})
@@ -142,25 +182,24 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        per_page: 10,
         importance: undefined,
         title: undefined,
         type: undefined,
         sort: '+id'
       },
       importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
+      userType,
+      cashbackType,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        user_id: undefined,
+        account: '',
+        user_type: 1,
+        cashback_type: 1,
+        cashback_prop: 10
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -184,8 +223,9 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      indexList().then(response => {
-        this.list = response.data
+      incomeList(this.listQuery).then(response => {
+        this.list = response.data.data
+        this.total = response.data.total
 
         // Just to simulate the time of the request
         setTimeout(() => {
@@ -220,13 +260,11 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        user_id: undefined,
+        account: '',
+        user_type: 1,
+        cashback_type: 1,
+        cashback_prop: 10
       }
     },
     handleCreate() {
@@ -257,7 +295,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -328,3 +365,10 @@ export default {
   }
 }
 </script>
+
+<style>
+  .el-input{
+    width: 200px;
+    padding: 2mm;
+  }
+</style>

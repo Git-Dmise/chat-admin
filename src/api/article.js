@@ -7,6 +7,14 @@ export function indexList() {
   })
 }
 
+export function incomeList(query) {
+  return request({
+    url: '/api/v1/promotion_admin/income_list',
+    method: 'get',
+    params: query
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/vue-element-admin/article/list',

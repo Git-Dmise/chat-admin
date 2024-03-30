@@ -38,7 +38,7 @@ export default {
     getBreadcrumb() {
       // only show routes with meta.title
       let matched = this.$route.matched.filter(item => item.meta && item.meta.title)
-      matched = [{ path: '/', meta: { title: 'chat' }}].concat(matched)
+      matched = [{ path: '/', meta: { title: this.$store.getters.app_name }}].concat(matched)
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
     },
