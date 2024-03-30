@@ -105,12 +105,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="返佣模式" prop="cashback_type">
-          <el-select v-model="temp.cashback_type" class="filter-item" placeholder="Please select">
+          <span v-if="temp.user_type===1">首次付费返佣</span>
+          <el-select v-else v-model="temp.cashback_type" class="filter-item" placeholder="Please select">
             <el-option v-for="item in cashbackType" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
         <el-form-item label="返佣比例" prop="cashback_prop">
-          <el-input v-model="temp.cashback_prop" />%
+          <el-input v-model.number="temp.cashback_prop" />%
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -136,7 +137,7 @@
 </template>
 
 <script>
-import { incomeList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { incomeList, fetchPv, createArticle, updateIncome } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -215,6 +216,20 @@ export default {
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false
+    }
+  },
+  watch: {
+    'temp.cashback_prop'(newVal) {
+      if (newVal > 100) {
+        this.temp.cashback_prop = 100
+      } else if (newVal < 0) {
+        this.temp.cashback_prop = 0
+      }
+    },
+    'temp.user_type'(newVal) {
+      if (newVal === 1) {
+        this.temp.cashback_type = 1
+      }
     }
   },
   created() {
@@ -305,8 +320,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
+          updateIncome(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false

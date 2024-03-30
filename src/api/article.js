@@ -15,6 +15,14 @@ export function incomeList(query) {
   })
 }
 
+export function updateIncome(data) {
+  return request({
+    url: '/api/v1/promotion_admin/update',
+    method: 'post',
+    data
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/vue-element-admin/article/list',
