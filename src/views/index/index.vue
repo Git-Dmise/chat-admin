@@ -42,7 +42,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
+          <el-button v-if="row.status!='published'" size="mini" type="success" @click="access(row,'published')">
             查看
           </el-button>
         </template>
@@ -197,12 +197,9 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
-      })
-      row.status = status
+    access(row) {
+      this.$store.dispatch('app/setapp', { app_id: row.id, app_name: row.app_name })
+      this.$router.push({ path: '/dashboard/index' })
     },
     sortChange(data) {
       const { prop, order } = data

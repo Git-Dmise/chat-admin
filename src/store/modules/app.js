@@ -36,6 +36,10 @@ const mutations = {
   SET_SIZE: (state, size) => {
     state.size = size
     Cookies.set('size', size)
+  },
+  SET_APP: (state, { app_id, app_name }) => {
+    state.app_id = app_id
+    state.app_name = app_name
   }
 }
 
@@ -54,6 +58,9 @@ const actions = {
   },
   setSize({ commit }, size) {
     commit('SET_SIZE', size)
+  },
+  setapp({ commit }, { app_id, app_name }) {
+    commit('SET_APP', { app_id, app_name })
   }
 }
 
