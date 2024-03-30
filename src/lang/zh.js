@@ -1,5 +1,8 @@
 export default {
   route: {
+    dataStatistics: '数据统计',
+    IncomeAllocation: '收益配置',
+    withdrawalManagement: '提现管理',
     dashboard: '首页',
     documentation: '文档',
     guide: '引导页',

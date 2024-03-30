@@ -14,6 +14,7 @@
 <script>
 import { generateTitle } from '@/utils/i18n'
 import pathToRegexp from 'path-to-regexp'
+import Cookies from 'js-cookie'
 
 export default {
   data() {
@@ -38,7 +39,7 @@ export default {
     getBreadcrumb() {
       // only show routes with meta.title
       let matched = this.$route.matched.filter(item => item.meta && item.meta.title)
-      matched = [{ path: '/', meta: { title: this.$store.getters.app_name }}].concat(matched)
+      matched = [{ path: '/', meta: { title: Cookies.get('app_name') }}].concat(matched)
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
     },

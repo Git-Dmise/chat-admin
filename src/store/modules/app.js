@@ -40,6 +40,8 @@ const mutations = {
   SET_APP: (state, { app_id, app_name }) => {
     state.app_id = app_id
     state.app_name = app_name
+    Cookies.set('app_id', app_id)
+    Cookies.set('app_name', app_name)
   }
 }
 

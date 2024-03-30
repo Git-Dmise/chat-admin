@@ -25,54 +25,34 @@
           <span>{{ row.user_type === 1 ? '普通用户' : '合作商户' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="返佣模式" align="center">
+      <el-table-column label="收款人" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.cashback_type === 1 ? '首次付费返佣' : '多次付费返佣' }}</span>
+          <span>{{ row.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="返佣比例" align="center">
+      <el-table-column label="提现金额" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.cashback_prop }}%</span>
+          <span>￥{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="注册人数" align="center">
+      <el-table-column label="提现方式" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.register_count }}</span>
+          <span>{{ row.account_type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="付费人数" align="center">
+      <el-table-column label="备注" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.pay_count }}</span>
+          <span>{{ row.reason }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="累计充值" align="center">
+      <el-table-column label="提现状态" align="center">
         <template slot-scope="{row}">
-          <span>￥{{ row.pay_amount }}</span>
+          <span>￥{{ row.status }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="续费率" align="center">
+      <el-table-column label="申请时间" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.renew_prop }}%</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="退款率" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.refund_prop }}%</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="退款金额" align="center">
-        <template slot-scope="{row}">
-          <span>￥{{ row.refund_amount }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="累计返佣金额" align="center">
-        <template slot-scope="{row}">
-          <span>￥{{ row.accumulate_amount }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="已提现金额" align="center">
-        <template slot-scope="{row}">
-          <span>￥{{ row.used_amount }}</span>
+          <span>{{ row.created_at }}</span>
         </template>
       </el-table-column>
       <el-table-column label="剩余可提现" align="center">
@@ -80,10 +60,20 @@
           <span>￥{{ row.usable_amount }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="退款率" align="center">
+        <template slot-scope="{row}">
+          <span>￥{{ row.refund_prop }}%</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="退款金额" align="center">
+        <template slot-scope="{row}">
+          <span>￥{{ row.refund_amount }}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            {{ $t('table.edit') }}
+            审核
           </el-button>
         </template>
       </el-table-column>
@@ -137,7 +127,7 @@
 </template>
 
 <script>
-import { incomeList, fetchPv, createArticle, updateIncome } from '@/api/article'
+import { withdrawalList, fetchPv, createArticle, updateIncome } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -238,7 +228,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      incomeList(this.listQuery).then(response => {
+      withdrawalList(this.listQuery).then(response => {
         this.list = response.data.data
         this.total = response.data.total
 

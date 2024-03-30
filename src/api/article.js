@@ -23,6 +23,14 @@ export function updateIncome(data) {
   })
 }
 
+export function withdrawalList(query) {
+  return request({
+    url: '/api/v1/promotion_admin/welfare_list',
+    method: 'get',
+    params: query
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/vue-element-admin/article/list',
