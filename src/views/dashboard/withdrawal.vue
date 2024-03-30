@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <div class="filter-container">
+      <el-input v-model="listQuery.username" placeholder="用户账号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+        {{ $t('table.search') }}
+      </el-button>
+    </div>
+
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -37,7 +44,7 @@
       </el-table-column>
       <el-table-column label="提现方式" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.account_type }}</span>
+          <span>{{ row.account_type===1?'微信':'支付宝' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center">
@@ -62,7 +69,7 @@
       </el-table-column>
       <el-table-column label="退款率" align="center">
         <template slot-scope="{row}">
-          <span>￥{{ row.refund_prop }}%</span>
+          <span>{{ row.refund_prop }}%</span>
         </template>
       </el-table-column>
       <el-table-column label="退款金额" align="center">
@@ -72,7 +79,7 @@
       </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+          <el-button v-if="row.status===1" type="primary" size="mini" @click="handleUpdate(row)">
             审核
           </el-button>
         </template>
@@ -83,25 +90,13 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="用户id">
-          <span>{{ temp.user_id }}</span>
-        </el-form-item>
-        <el-form-item label="用户账号">
-          <span>{{ temp.account }}</span>
-        </el-form-item>
-        <el-form-item label="账号类型" prop="user_type">
-          <el-select v-model="temp.user_type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in userType" :key="item.key" :label="item.display_name" :value="item.key" />
+        <el-form-item label="审核意见" prop="status">
+          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in status" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item label="返佣模式" prop="cashback_type">
-          <span v-if="temp.user_type===1">首次付费返佣</span>
-          <el-select v-else v-model="temp.cashback_type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in cashbackType" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="返佣比例" prop="cashback_prop">
-          <el-input v-model.number="temp.cashback_prop" class="cashback_prop" />%
+        <el-form-item label="备注" prop="reason">
+          <el-input v-model="temp.reason" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -127,23 +122,18 @@
 </template>
 
 <script>
-import { withdrawalList, fetchPv, createArticle, updateIncome } from '@/api/article'
+import { withdrawalList, fetchPv, createArticle, welfareExamine } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
-const userType = [
-  { key: 1, display_name: '普通用户' },
-  { key: 2, display_name: '合作商户' }
-]
-
-const cashbackType = [
-  { key: 1, display_name: '首次付费返佣' },
-  { key: 2, display_name: '多次付费返佣' }
+const status = [
+  { key: 1, display_name: '已打款' },
+  { key: 0, display_name: '提现驳回' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = userType.reduce((acc, cur) => {
+const calendarTypeKeyValue = status.reduce((acc, cur) => {
   acc[cur.key] = cur.display_name
   return acc
 }, {})
@@ -174,23 +164,16 @@ export default {
       listQuery: {
         page: 1,
         per_page: 10,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        username: ''
       },
       importanceOptions: [1, 2, 3],
-      userType,
-      cashbackType,
+      status,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        user_id: undefined,
-        account: '',
-        user_type: 1,
-        cashback_type: 1,
-        cashback_prop: 10
+        status: 1,
+        reason: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -255,14 +238,6 @@ export default {
         this.sortByID(order)
       }
     },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
     resetTemp() {
       this.temp = {
         user_id: undefined,
@@ -310,13 +285,13 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateIncome(tempData).then(() => {
+          welfareExamine(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
-              message: '更新成功',
+              message: '审核完成',
               type: 'success',
               duration: 2000
             })
@@ -361,18 +336,7 @@ export default {
           return v[j]
         }
       }))
-    },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
     }
   }
 }
 </script>
-
-<style>
-  .cashback_prop{
-    width: 200px;
-    padding: 2mm;
-  }
-</style>

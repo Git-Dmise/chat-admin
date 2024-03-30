@@ -183,11 +183,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        per_page: 10,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        per_page: 10
       },
       importanceOptions: [1, 2, 3],
       userType,
@@ -264,14 +260,6 @@ export default {
       if (prop === 'id') {
         this.sortByID(order)
       }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
     },
     resetTemp() {
       this.temp = {
@@ -371,10 +359,6 @@ export default {
           return v[j]
         }
       }))
-    },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
     }
   }
 }

@@ -31,6 +31,14 @@ export function withdrawalList(query) {
   })
 }
 
+export function welfareExamine(data) {
+  return request({
+    url: '/api/v1/promotion_admin/welfare_examine',
+    method: 'post',
+    data
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/vue-element-admin/article/list',
