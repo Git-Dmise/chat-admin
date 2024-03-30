@@ -128,8 +128,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const status = [
-  { key: 1, display_name: '已打款' },
-  { key: 0, display_name: '提现驳回' }
+  { key: 2, display_name: '已打款' },
+  { key: 3, display_name: '提现驳回' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -189,20 +189,6 @@ export default {
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false
-    }
-  },
-  watch: {
-    'temp.cashback_prop'(newVal) {
-      if (newVal > 100) {
-        this.temp.cashback_prop = 100
-      } else if (newVal < 0) {
-        this.temp.cashback_prop = 0
-      }
-    },
-    'temp.user_type'(newVal) {
-      if (newVal === 1) {
-        this.temp.cashback_type = 1
-      }
     }
   },
   created() {
