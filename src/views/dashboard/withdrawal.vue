@@ -54,7 +54,7 @@
       </el-table-column>
       <el-table-column label="提现状态" align="center">
         <template slot-scope="{row}">
-          <span>￥{{ row.status }}</span>
+          <span>{{ row.status===1?'等待处理':(row.status===2?'已打款':'提现驳回') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="申请时间" align="center">
@@ -172,7 +172,7 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        status: 1,
+        status: 2,
         reason: ''
       },
       dialogFormVisible: false,
@@ -261,6 +261,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      this.temp.status = 2
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
