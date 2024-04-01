@@ -2,15 +2,17 @@ import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import { v4 as uuidv4 } from 'uuid'
+import md5 from 'js-md5'
+import qs from 'qs'
 
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000, // request timeout
+  timeout: 20000, // request timeout
   headers: {
-    'X-Client-Env': process.env.VUE_APP_X_CLIENT_ENV,
-    'k': 'b5834e65-4aa7-4a82-aeb4-cb0b5c60aa23'
+    'X-Client-Env': process.env.VUE_APP_X_CLIENT_ENV
   }
 })
 
@@ -25,6 +27,10 @@ service.interceptors.request.use(
       // please modify it according to the actual situation
       config.headers['X-Token'] = getToken()
     }
+    config.headers['X-Client-System'] = 'web'
+    config.headers['X-Client-Timestamp'] = Date.now()
+    config.headers['X-Client-Request-Uuid'] = uuidv4()
+    config.headers['X-Client-Sign'] = md5('a8259a2f-4a50-f787-d27b-d422571aebe2' + '\n' + config.method.toUpperCase() + '\n' + config.url + (config.params ? '?' + qs.stringify(config.params, { addQueryPrefix: false }) : '') + '\n' + config.headers['X-Client-Timestamp'] + '\n' + config.headers['X-Client-Request-Uuid'] + '\n' + (config.data ? JSON.stringify((config.data)) : '') + '\n')
     return config
   },
   error => {
