@@ -110,6 +110,16 @@
             <el-option v-for="item in cashbackType" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
+        <el-form-item label="附加条件1" prop="times_limit">
+          <el-select v-model="temp.times_limit" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in timesLimit" :key="item.key" :label="item.display_name" :value="item.key" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="附加条件2" prop="time_limit">
+          <el-select v-model="temp.time_limit" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in timeLimit" :key="item.key" :label="item.display_name" :value="item.key" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="返佣比例" prop="cashback_prop">
           <el-input v-model.number="temp.cashback_prop" class="cashback_prop" />%
         </el-form-item>
@@ -152,6 +162,22 @@ const cashbackType = [
   { key: 2, display_name: '多次付费返佣' }
 ]
 
+const timesLimit = [
+  { key: 0, display_name: '无' },
+  { key: 1, display_name: '前2次付费返佣' },
+  { key: 2, display_name: '前3次付费返佣' },
+  { key: 3, display_name: '前4次付费返佣' },
+  { key: 4, display_name: '前5次付费返佣' }
+]
+
+const timeLimit = [
+  { key: 0, display_name: '无' },
+  { key: 1, display_name: '注册后1周内付费计算返佣' },
+  { key: 2, display_name: '注册后1月内付费计算返佣' },
+  { key: 3, display_name: '注册后3月内付费计算返佣' },
+  { key: 4, display_name: '注册后1年内付费计算返佣' }
+]
+
 // arr to obj, such as { CN : "China", US : "USA" }
 const calendarTypeKeyValue = userType.reduce((acc, cur) => {
   acc[cur.key] = cur.display_name
@@ -188,6 +214,8 @@ export default {
       importanceOptions: [1, 2, 3],
       userType,
       cashbackType,
+      timesLimit,
+      timeLimit,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
@@ -196,7 +224,9 @@ export default {
         account: '',
         user_type: 1,
         cashback_type: 1,
-        cashback_prop: 10
+        cashback_prop: 10,
+        times_limit: 0,
+        time_limit: 0
       },
       dialogFormVisible: false,
       dialogStatus: '',
