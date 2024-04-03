@@ -220,6 +220,7 @@ export default {
     },
     refresh() {
       this.listQuery.username = ''
+      this.getList()
     },
     handleModifyStatus(row, status) {
       this.$message({
