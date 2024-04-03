@@ -5,6 +5,8 @@ import { getToken } from '@/utils/auth'
 import { v4 as uuidv4 } from 'uuid'
 import md5 from 'js-md5'
 import qs from 'qs'
+import { removeToken } from '@/utils/auth'
+import { resetRouter } from '@/router'
 
 // create an axios instance
 const service = axios.create({
@@ -82,11 +84,22 @@ service.interceptors.response.use(
     }
   },
   error => {
-    Message({
-      message: error.response.data.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
+    if (error.response.data.code === 422) {
+      removeToken()
+      resetRouter()
+      Message({
+        message: 'token过期',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      this.$router.push({ path: '/', query: '' })
+    } else {
+      Message({
+        message: error.response.data.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+    }
     return Promise.reject(error)
   }
 )
