@@ -5,6 +5,13 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
+      <el-button v-waves class="filter-item" icon="el-icon-refresh-right" @click="refresh">
+        重置
+      </el-button>
+
+      <div style="display:inline;margin-left: 200px;">
+        <span>{{ processing_count }}个提现订单等待处理</span>
+      </div>
     </div>
 
     <el-table
@@ -99,6 +106,7 @@
           <el-input v-model="temp.reason" />
         </el-form-item>
       </el-form>
+      <div style="text-align: center;color: red;">如提现申请被驳回，请在备注栏中填写驳回原因，以方便用户更快改正。</div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
           {{ $t('table.cancel') }}
@@ -160,6 +168,7 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      processing_count: 0,
       listLoading: true,
       listQuery: {
         page: 1,
@@ -171,10 +180,7 @@ export default {
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
-      temp: {
-        status: 2,
-        reason: ''
-      },
+      temp: {},
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
@@ -200,6 +206,7 @@ export default {
       withdrawalList(this.listQuery).then(response => {
         this.list = response.data.data
         this.total = response.data.total
+        this.processing_count = response.data.processing_count
 
         // Just to simulate the time of the request
         setTimeout(() => {
@@ -210,6 +217,9 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
+    },
+    refresh() {
+      this.listQuery.username = ''
     },
     handleModifyStatus(row, status) {
       this.$message({
@@ -272,6 +282,9 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          if (tempData.reason === null) {
+            delete tempData.reason
+          }
           welfareExamine(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)

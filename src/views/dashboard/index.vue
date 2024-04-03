@@ -1,5 +1,15 @@
 <template>
   <div class="app-container">
+    <div class="filter-container">
+      <el-input v-model="listQuery.username" placeholder="用户账号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+        {{ $t('table.search') }}
+      </el-button>
+      <el-button v-waves class="filter-item" icon="el-icon-refresh-right" @click="refresh">
+        重置
+      </el-button>
+    </div>
+
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -110,12 +120,12 @@
             <el-option v-for="item in cashbackType" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item label="附加条件1" prop="times_limit">
+        <el-form-item v-if="temp.user_type===2 && temp.cashback_type===2" label="附加条件1" prop="times_limit">
           <el-select v-model="temp.times_limit" class="filter-item" placeholder="Please select">
             <el-option v-for="item in timesLimit" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item label="附加条件2" prop="time_limit">
+        <el-form-item :label="temp.user_type===2 && temp.cashback_type===2 ? '附加条件2':'附加条件'" prop="time_limit">
           <el-select v-model="temp.time_limit" class="filter-item" placeholder="Please select">
             <el-option v-for="item in timeLimit" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
@@ -209,7 +219,8 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        per_page: 10
+        per_page: 10,
+        username: ''
       },
       importanceOptions: [1, 2, 3],
       userType,
@@ -278,6 +289,9 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
+    refresh() {
+      this.listQuery.username = ''
+    },
     handleModifyStatus(row, status) {
       this.$message({
         message: '操作成功',
@@ -337,6 +351,9 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          if (this.temp.user_type === 1 || this.temp.cashback_type === 1) {
+            this.temp.times_limit = 0
+          }
           const tempData = Object.assign({}, this.temp)
           updateIncome(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
