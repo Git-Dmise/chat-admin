@@ -204,7 +204,7 @@ export default {
   },
   methods: {
     tableRowClassName({ row }) {
-      if (row.refund_prop > 80 || row.usable_amount < 0) {
+      if (row.refund_prop > 20 || row.usable_amount < 0) {
         return 'highlight-row'
       }
       return ''
