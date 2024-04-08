@@ -67,7 +67,7 @@
       <el-table-column label="申请时间" align="center" width="150">
         <template slot-scope="{row}">
           <span>{{ row.created_at }}</span>
-          <div v-if="isOverTenDays(row.created_at)">【已经超出10天】</div>
+          <div v-if="isOverTenDays(row.created_at) && row.status === 1">【已经超出10天】</div>
         </template>
       </el-table-column>
       <el-table-column label="剩余可提现" align="center">
