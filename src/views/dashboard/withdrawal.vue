@@ -222,11 +222,7 @@ export default {
         this.list = response.data.data
         this.total = response.data.total
         this.processing_count = response.data.processing_count
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+        this.listLoading = false
       })
     },
     handleFilter() {
