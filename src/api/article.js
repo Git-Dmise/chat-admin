@@ -23,6 +23,21 @@ export function updateIncome(data) {
   })
 }
 
+export function welfareConfigIndex() {
+  return request({
+    url: '/api/v1/promotion_admin/welfare_config',
+    method: 'get'
+  })
+}
+
+export function updateWelfareConfig(data) {
+  return request({
+    url: '/api/v1/promotion_admin/welfare_config',
+    method: 'post',
+    data
+  })
+}
+
 export function withdrawalList(query) {
   return request({
     url: '/api/v1/promotion_admin/welfare_list',

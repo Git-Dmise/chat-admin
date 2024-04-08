@@ -8,6 +8,9 @@
       <el-button v-waves class="filter-item" icon="el-icon-refresh-right" @click="refresh">
         重置
       </el-button>
+      <el-button v-waves style="float: right;" class="filter-item" type="primary" @click="welfareConfig">
+        全局配置返现比例
+      </el-button>
     </div>
 
     <el-table
@@ -144,6 +147,27 @@
       </div>
     </el-dialog>
 
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="welfareConfigVisible">
+      <el-form ref="dataForm" :rules="rules" :model="configTemp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="开启全局配置" prop="switch">
+          <el-select v-model="configTemp.switch" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in configSwitch" :key="item.key" :label="item.display_name" :value="item.key" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="返佣比例" prop="cashback_prop">
+          <el-input v-model.number="configTemp.cashback_prop" class="cashback_prop" />%
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="welfareConfigVisible = false">
+          {{ $t('table.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="updateWelfareConfig()">
+          {{ $t('table.confirm') }}
+        </el-button>
+      </div>
+    </el-dialog>
+
     <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
       <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
         <el-table-column prop="key" label="Channel" />
@@ -157,7 +181,7 @@
 </template>
 
 <script>
-import { incomeList, fetchPv, createArticle, updateIncome } from '@/api/article'
+import { incomeList, fetchPv, createArticle, updateIncome, welfareConfigIndex, updateWelfareConfig } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -186,6 +210,11 @@ const timeLimit = [
   { key: 2, display_name: '注册后1月内付费计算返佣' },
   { key: 3, display_name: '注册后3月内付费计算返佣' },
   { key: 4, display_name: '注册后1年内付费计算返佣' }
+]
+
+const configSwitch = [
+  { key: 0, display_name: '关闭' },
+  { key: 1, display_name: '开启' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -227,19 +256,14 @@ export default {
       cashbackType,
       timesLimit,
       timeLimit,
+      configSwitch,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
-      temp: {
-        user_id: undefined,
-        account: '',
-        user_type: 1,
-        cashback_type: 1,
-        cashback_prop: 10,
-        times_limit: 0,
-        time_limit: 0
-      },
+      temp: {},
+      configTemp: {},
       dialogFormVisible: false,
+      welfareConfigVisible: false,
       dialogStatus: '',
       textMap: {
         update: 'Edit',
@@ -261,6 +285,13 @@ export default {
         this.temp.cashback_prop = 100
       } else if (newVal < 0) {
         this.temp.cashback_prop = 0
+      }
+    },
+    'configTemp.cashback_prop'(newVal) {
+      if (newVal > 100) {
+        this.configTemp.cashback_prop = 100
+      } else if (newVal < 0) {
+        this.configTemp.cashback_prop = 0
       }
     },
     'temp.user_type'(newVal) {
@@ -370,33 +401,28 @@ export default {
         }
       })
     },
-    handleDelete(row, index) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
+    welfareConfig() {
+      welfareConfigIndex().then(response => {
+        this.configTemp = response.data
       })
-      this.list.splice(index, 1)
+      this.welfareConfigVisible = true
+    },
+    updateWelfareConfig() {
+      const tempData = Object.assign({}, this.configTemp)
+      updateWelfareConfig(tempData).then(() => {
+        this.welfareConfigVisible = false
+        this.$notify({
+          title: '成功',
+          message: '更新成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
     },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {
         this.pvData = response.data.pvData
         this.dialogPvVisible = true
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
       })
     },
     formatJson(filterVal) {
