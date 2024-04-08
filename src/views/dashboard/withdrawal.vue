@@ -22,6 +22,7 @@
       fit
       highlight-current-row
       style="width: 100%;"
+      :row-class-name="tableRowClassName"
       @sort-change="sortChange"
     >
       <el-table-column label="序号" align="center" width="50">
@@ -202,6 +203,12 @@ export default {
     this.getList()
   },
   methods: {
+    tableRowClassName({ row }) {
+      if (row.refund_prop > 80 || row.usable_amount < 0) {
+        return 'highlight-row'
+      }
+      return ''
+    },
     isOverTenDays(createdDate) {
       const currentDate = new Date()
       const createdDateObj = new Date(createdDate)
@@ -349,3 +356,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.el-table .highlight-row{
+  background-color: yellow; /* 或者你想要的任何颜色 */
+}
+</style>
