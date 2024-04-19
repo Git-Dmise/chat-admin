@@ -55,7 +55,12 @@
           <span>{{ row.account_type===1?'微信':'支付宝' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center">
+      <el-table-column label="用户备注" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.comment }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="审核备注" align="center">
         <template slot-scope="{row}">
           <span>{{ row.reason }}</span>
         </template>
@@ -68,7 +73,7 @@
       <el-table-column label="申请时间" align="center" width="150">
         <template slot-scope="{row}">
           <span>{{ row.created_at }}</span>
-          <div v-if="isOverTenDays(row.created_at) && row.status === 1">【已经超出10天】</div>
+          <div v-if="isOverTenDays(row.created_at) && row.status === 1">【已经超出30天】</div>
         </template>
       </el-table-column>
       <el-table-column label="剩余可提现" align="center">
@@ -214,7 +219,7 @@ export default {
       const createdDateObj = new Date(createdDate)
       const diff = currentDate.getTime() - createdDateObj.getTime()
       const days = diff / (1000 * 60 * 60 * 24)
-      return days > 10
+      return days > 30
     },
     getList() {
       this.listLoading = true
